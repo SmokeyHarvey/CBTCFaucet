@@ -14,9 +14,6 @@ export default function Faucet() {
   const [recipient, setRecipient] = useState("");
 
   const handleWithdraw = async () => {
-    console.log("Contract address: ", process.env.NEXT_PUBLIC_CONTRACT_ADDRESS);
-    console.log("Admin private key: ", process.env.NEXT_PUBLIC_ADMIN_PRIVATE_KEY);
-    console.log("Infura RPC URL: ", process.env.NEXT_PUBLIC_INFURA_RPC_URL);
     if (!FAUCET_CONTRACT || !ADMIN_PRIVATE_KEY || !NEXT_PUBLIC_ALCHEMY_RPC_UR) {
       setMessage("Missing environment variables.");
       return;
