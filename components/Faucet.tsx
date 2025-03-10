@@ -55,23 +55,29 @@ export default function Faucet() {
   };
 
   return (
-<div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-[#ff5005] to-[#f79c11] text-white p-4">
-<h1 className="text-3xl font-bold text-white mb-4">CBTC Faucet</h1>
+    <div className="flex items-center justify-center w-full h-screen bg-gradient-to-r from-[#ff5005] to-[#f79c11] text-white p-6">
+    <div className="w-full max-w-md bg-black bg-opacity-40 p-6 rounded-xl shadow-lg flex flex-col items-center gap-6">
+      <h1 className="text-3xl font-bold text-white text-center">CBTC Faucet</h1>
       <input
         type="text"
         placeholder="Enter wallet address"
         value={recipient}
         onChange={(e) => setRecipient(e.target.value)}
-        className="mb-4 p-2 text-white bg-gray-800 rounded w-80"
+        className="w-full max-w-sm p-3 text-white bg-gray-800 border border-gray-700 rounded-lg"
       />
       <button
         onClick={handleWithdraw}
-        className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold"
+        className="w-full max-w-sm bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold"
         disabled={loading}
       >
         {loading ? "Processing..." : "Withdraw CBTC"}
       </button>
-      {message && <p className="mt-4 text-lg text-green-400 bg-gray-800">{message}</p>}
+      {message && (
+        <p className="w-full max-w-sm p-3 text-center text-green-400 bg-gray-900 rounded-lg">
+          {message}
+        </p>
+      )}
     </div>
+  </div>
   );
 }
