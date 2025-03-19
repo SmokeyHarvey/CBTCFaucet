@@ -6,48 +6,46 @@ import { ethers } from "ethers";
 
 const FAUCET_CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
 const ADMIN_PRIVATE_KEY = process.env.NEXT_PUBLIC_ADMIN_PRIVATE_KEY || "";
-const NEXT_PUBLIC_ALCHEMY_RPC_UR = process.env.NEXT_PUBLIC_ALCHEMY_RPC_URL || "";
+const NEXT_PUBLIC_ALCHEMY_RPC_URL = process.env.NEXT_PUBLIC_ALCHEMY_RPC_URL || "";
 
 export default function Faucet() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [recipient, setRecipient] = useState("");
 
+  let isProcessing = false; // Global flag
+
   const handleWithdraw = async () => {
-    if (!FAUCET_CONTRACT || !ADMIN_PRIVATE_KEY || !NEXT_PUBLIC_ALCHEMY_RPC_UR) {
-      setMessage("Missing environment variables.");
+    if (isProcessing) {
+      setMessage("Please wait for the current transaction to complete.");
       return;
     }
-    if (!ethers.isAddress(recipient)) {
-      setMessage("Invalid wallet address.");
-      return;
-    }
-
+  
+    isProcessing = true;
+    setLoading(true);
+    setMessage("Processing withdrawal...");
+  
     try {
-      setLoading(true);
-      setMessage("Processing withdrawal...");
-
-      // Connect to blockchain with admin private key
-      const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_ALCHEMY_RPC_UR);
+      const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_ALCHEMY_RPC_URL);
       const wallet = new ethers.Wallet(ADMIN_PRIVATE_KEY, provider);
       const contract = new ethers.Contract(
         FAUCET_CONTRACT,
-        [
-          "function withdraw(address recipient) external"
-        ],
+        ["function withdraw(address recipient) external"],
         wallet
       );
-
-      // Send withdrawal transaction
-      const tx = await contract.withdraw(recipient);
+  
+      const nonce = await provider.getTransactionCount(wallet.address, "latest");
+  
+      const tx = await contract.withdraw(recipient, { nonce });
       await tx.wait();
-
+  
       setMessage(`Withdrawal successful! Tx: ${tx.hash}`);
     } catch (error) {
       console.error(error);
       setMessage("Transaction failed. Check console for details.");
     } finally {
       setLoading(false);
+      isProcessing = false;
     }
   };
 
@@ -70,7 +68,7 @@ export default function Faucet() {
         {loading ? "Processing..." : "Withdraw CBTC"}
       </button>
       {message && (
-        <p className="w-full max-w-sm p-3 text-center text-green-400 bg-gray-900 rounded-lg">
+        <p className="w-full max-w-sm p-3 text-center text-wrap text-green-400 bg-gray-900 rounded-lg">
           {message}
         </p>
       )}
